@@ -1,69 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {font-family:Sarabun;background:#f1f5f9;margin:0;}
+
+.card {
+    background:white;
+    margin:10px;
+    padding:15px;
+    border-radius:14px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.title {font-weight:600;margin-bottom:5px;}
+
+.status {
+    padding:4px 10px;
+    border-radius:20px;
+    background:#dbeafe;
+    display:inline-block;
+}
+
+.btn {
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    color:white;
+}
+
+.approve {background:#16a34a;}
+.reject {background:#dc2626;}
+</style>
 </head>
+
 <body>
 
-<h2>Dashboard</h2>
-
-<input id="search" placeholder="ค้นหา" oninput="search()">
-
-<table border="1">
-<thead>
-<tr>
-<th>Doc</th>
-<th>Name</th>
-<th>Company</th>
-<th>Items</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody id="tb"></tbody>
-</table>
+<div id="list"></div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
-let allData = [];
+const API="https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
 
 async function load(){
-    const res = await fetch(API+"?action=list");
-    const data = await res.json();
+    const res=await fetch(API+"?action=list");
+    const data=await res.json();
 
-    allData = data.data;
-    render(allData);
-}
+    list.innerHTML=data.data.map(r=>`
+        <div class="card">
+            <div class="title">${r.doc_no}</div>
+            <div>${r.name_th}</div>
+            <div>${r.company}</div>
+            <div class="status">${r.doc_status}</div>
 
-function render(rows){
-    tb.innerHTML = rows.map(r=>`
-        <tr>
-            <td>${r.doc_no}</td>
-            <td>${r.name_th}</td>
-            <td>${r.company}</td>
-            <td>${r.items}</td>
-            <td>${r.doc_status}</td>
-            <td>
-                <button onclick="update('${r.doc_no}','อนุมัติ')">✔</button>
-                <button onclick="update('${r.doc_no}','ไม่อนุมัติ')">✖</button>
-            </td>
-        </tr>
+            <button class="btn approve" onclick="update('${r.doc_no}','อนุมัติ')">อนุมัติ</button>
+            <button class="btn reject" onclick="update('${r.doc_no}','ไม่อนุมัติ')">ไม่อนุมัติ</button>
+        </div>
     `).join("");
-}
-
-function search(){
-    const k = search.value.toLowerCase();
-    render(allData.filter(r =>
-        (r.name_th||'').toLowerCase().includes(k) ||
-        (r.company||'').toLowerCase().includes(k)
-    ));
 }
 
 async function update(doc,status){
     await fetch(API,{
         method:"POST",
-        body: JSON.stringify({
+        body:JSON.stringify({
             action:"update",
             doc_no:doc,
             status

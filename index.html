@@ -1,29 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IT Request</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Sarabun', sans-serif;
+    margin:0;
+    background:#f1f5f9;
+}
+
+.header {
+    background: linear-gradient(135deg,#1e3a8a,#2563eb);
+    color:white;
+    padding:20px;
+    font-size:20px;
+    font-weight:600;
+}
+
+.container {
+    padding:15px;
+}
+
+.card {
+    background:white;
+    border-radius:16px;
+    padding:15px;
+    margin-bottom:15px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.label {
+    font-size:14px;
+    margin-bottom:5px;
+    color:#334155;
+}
+
+.input {
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    font-size:15px;
+}
+
+.checkbox-group {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.checkbox-card {
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #cbd5e1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.button {
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    font-size:16px;
+    font-weight:600;
+    color:white;
+    background:#2563eb;
+}
+
+.button:active {
+    background:#1e40af;
+}
+</style>
 </head>
+
 <body>
 
-<h2>ฟอร์มขออุปกรณ์ IT</h2>
+<div class="header">
+📄 IT Request Form
+</div>
 
-<input id="name_th" placeholder="ชื่อ"><br>
-<input id="company" placeholder="บริษัท"><br>
-<input id="position" placeholder="ตำแหน่ง"><br>
-<input id="phone" placeholder="เบอร์"><br>
+<div class="container">
 
-<label><input type="checkbox" id="pc"> PC</label>
-<label><input type="checkbox" id="nb"> Notebook</label>
+<div class="card">
+<div class="label">ชื่อ</div>
+<input id="name_th" class="input">
 
-<br><br>
-<button onclick="submitForm()">ส่งข้อมูล</button>
+<div class="label">บริษัท</div>
+<input id="company" class="input">
+
+<div class="label">ตำแหน่ง</div>
+<input id="position" class="input">
+
+<div class="label">เบอร์โทร</div>
+<input id="phone" class="input">
+</div>
+
+<div class="card">
+<div class="label">เลือกอุปกรณ์</div>
+
+<div class="checkbox-group">
+<label class="checkbox-card">
+<input type="checkbox" id="pc"> PC
+</label>
+
+<label class="checkbox-card">
+<input type="checkbox" id="nb"> Notebook
+</label>
+</div>
+</div>
+
+<button class="button" onclick="submitForm()">
+ส่งคำขอ
+</button>
+
+</div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
 
 function getItems(){
-    let items = [];
+    let items=[];
     if(pc.checked) items.push("PC");
     if(nb.checked) items.push("Notebook");
     return items;
@@ -48,7 +151,7 @@ async function submitForm(){
 
     const data = await res.json();
 
-    alert("เลขเอกสาร: "+data.data.doc_no);
+    alert("✅ ส่งสำเร็จ\n"+data.data.doc_no);
 }
 </script>
 

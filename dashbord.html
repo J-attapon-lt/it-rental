@@ -1,42 +1,14 @@
-<script>
-const API = "https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+</head>
+<body>
 
-async function load() {
-    const res = await fetch(API + "?action=list");
-    const data = await res.json();
+<h2>Dashboard</h2>
 
-    const tbody = document.getElementById("tb");
-
-    tbody.innerHTML = data.data.map(r => `
-        <tr>
-            <td>${r.doc_no}</td>
-            <td>${r.name_th}</td>
-            <td>${r.company}</td>
-            <td>${r.items}</td>
-            <td>${r.doc_status}</td>
-            <td>
-                <button onclick="update('${r.doc_no}','อนุมัติ')">อนุมัติ</button>
-                <button onclick="update('${r.doc_no}','ไม่อนุมัติ')">ไม่อนุมัติ</button>
-            </td>
-        </tr>
-    `).join("");
-}
-
-async function update(doc, status) {
-    await fetch(API, {
-        method: "POST",
-        body: JSON.stringify({
-            action: "update",
-            doc_no: doc,
-            status
-        })
-    });
-
-    load();
-}
-
-load();
-</script>
+<input id="search" placeholder="ค้นหา" oninput="search()">
 
 <table border="1">
 <thead>
@@ -51,3 +23,57 @@ load();
 </thead>
 <tbody id="tb"></tbody>
 </table>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
+let allData = [];
+
+async function load(){
+    const res = await fetch(API+"?action=list");
+    const data = await res.json();
+
+    allData = data.data;
+    render(allData);
+}
+
+function render(rows){
+    tb.innerHTML = rows.map(r=>`
+        <tr>
+            <td>${r.doc_no}</td>
+            <td>${r.name_th}</td>
+            <td>${r.company}</td>
+            <td>${r.items}</td>
+            <td>${r.doc_status}</td>
+            <td>
+                <button onclick="update('${r.doc_no}','อนุมัติ')">✔</button>
+                <button onclick="update('${r.doc_no}','ไม่อนุมัติ')">✖</button>
+            </td>
+        </tr>
+    `).join("");
+}
+
+function search(){
+    const k = search.value.toLowerCase();
+    render(allData.filter(r =>
+        (r.name_th||'').toLowerCase().includes(k) ||
+        (r.company||'').toLowerCase().includes(k)
+    ));
+}
+
+async function update(doc,status){
+    await fetch(API,{
+        method:"POST",
+        body: JSON.stringify({
+            action:"update",
+            doc_no:doc,
+            status
+        })
+    });
+    load();
+}
+
+load();
+</script>
+
+</body>
+</html>

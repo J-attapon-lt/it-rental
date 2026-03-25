@@ -1,78 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {font-family:Sarabun;background:#f1f5f9;margin:0;}
-
-.card {
-    background:white;
-    margin:10px;
-    padding:15px;
-    border-radius:14px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
-}
-
-.title {font-weight:600;margin-bottom:5px;}
-
-.status {
-    padding:4px 10px;
-    border-radius:20px;
-    background:#dbeafe;
-    display:inline-block;
-}
-
-.btn {
-    margin-top:10px;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    color:white;
-}
-
-.approve {background:#16a34a;}
-.reject {background:#dc2626;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
 </head>
-
 <body>
+  <input id="search" placeholder="ค้นหา">
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Doc</th>
+        <th>Name</th>
+        <th>Company</th>
+        <th>Items</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="tb"></tbody>
+  </table>
 
-<div id="list"></div>
+  <script src="dashboard.js"></script>
+</body>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
+let allData = [];
 
-async function load(){
-    const res=await fetch(API+"?action=list");
-    const data=await res.json();
-
-    list.innerHTML=data.data.map(r=>`
-        <div class="card">
-            <div class="title">${r.doc_no}</div>
-            <div>${r.name_th}</div>
-            <div>${r.company}</div>
-            <div class="status">${r.doc_status}</div>
-
-            <button class="btn approve" onclick="update('${r.doc_no}','อนุมัติ')">อนุมัติ</button>
-            <button class="btn reject" onclick="update('${r.doc_no}','ไม่อนุมัติ')">ไม่อนุมัติ</button>
-        </div>
-    `).join("");
+async function loadData() {
+  const res = await fetch(API + "?action=list");
+  const data = await res.json();
+  allData = data.data || [];
+  render(allData);
 }
 
-async function update(doc,status){
-    await fetch(API,{
-        method:"POST",
-        body:JSON.stringify({
-            action:"update",
-            doc_no:doc,
-            status
-        })
+function render(rows) {
+  const tb = document.getElementById("tb");
+  tb.innerHTML = "";
+
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${r.doc_no || ""}</td>
+      <td>${r.name_th || ""}</td>
+      <td>${r.company || ""}</td>
+      <td>${r.items || ""}</td>
+      <td>${r.doc_status || ""}</td>
+      <td>
+        <button class="approve-btn">อนุมัติ</button>
+        <button class="reject-btn">ไม่อนุมัติ</button>
+      </td>
+    `;
+
+    const approveBtn = tr.querySelector(".approve-btn");
+    const rejectBtn = tr.querySelector(".reject-btn");
+
+    approveBtn.addEventListener("click", () => updateStatus(r.doc_no, "อนุมัติ"));
+    rejectBtn.addEventListener("click", () => updateStatus(r.doc_no, "ไม่อนุมัติ"));
+
+    tb.appendChild(tr);
+  });
+}
+
+async function updateStatus(docNo, status) {
+  try {
+    const res = await fetch(API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        action: "update",
+        doc_no: docNo,
+        status
+      })
     });
-    load();
+
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.message || "Update failed");
+
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    alert("อัปเดตสถานะไม่สำเร็จ: " + err.message);
+  }
 }
 
-load();
-</script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("search").addEventListener("input", e => {
+    const keyword = e.target.value.toLowerCase();
+    const filtered = allData.filter(r =>
+      (r.doc_no || "").toLowerCase().includes(keyword) ||
+      (r.name_th || "").toLowerCase().includes(keyword) ||
+      (r.company || "").toLowerCase().includes(keyword)
+    );
+    render(filtered);
+  });
 
+  loadData();
+});
+
+  <script src="dashboard.js"></script>
 </body>
 </html>

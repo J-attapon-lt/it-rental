@@ -1,24 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>IT Request</title>
+</head>
+<body>
+
+<h2>ฟอร์มขออุปกรณ์ IT</h2>
+
+<input id="name_th" placeholder="ชื่อ"><br>
+<input id="company" placeholder="บริษัท"><br>
+<input id="position" placeholder="ตำแหน่ง"><br>
+<input id="phone" placeholder="เบอร์"><br>
+
+<label><input type="checkbox" id="pc"> PC</label>
+<label><input type="checkbox" id="nb"> Notebook</label>
+
+<br><br>
+<button onclick="submitForm()">ส่งข้อมูล</button>
+
+<script>
 const API = "https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
 
-async function submitForm() {
+function getItems(){
+    let items = [];
+    if(pc.checked) items.push("PC");
+    if(nb.checked) items.push("Notebook");
+    return items;
+}
+
+async function submitForm(){
     const payload = {
-        name_th: document.getElementById('name_th').value,
-        company: document.getElementById('company').value,
-        position: document.getElementById('position').value,
-        phone: document.getElementById('phone').value,
-        req_date: document.getElementById('req_date').value,
-        items: ["PC", "Notebook"] // ใส่ logic checkbox ของคุณ
+        name_th: name_th.value,
+        company: company.value,
+        position: position.value,
+        phone: phone.value,
+        items: getItems()
     };
 
-    const res = await fetch(API, {
-        method: "POST",
+    const res = await fetch(API,{
+        method:"POST",
         body: JSON.stringify({
-            action: "create",
+            action:"create",
             payload
         })
     });
 
     const data = await res.json();
 
-    alert("บันทึกสำเร็จ: " + data.data.doc_no);
+    alert("เลขเอกสาร: "+data.data.doc_no);
 }
+</script>
+
+</body>
+</html>

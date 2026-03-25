@@ -1,4 +1,4 @@
-const API = "YOUR_APPS_SCRIPT_URL";
+const API = "https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
 let allData = [];
 
 async function loadData() {

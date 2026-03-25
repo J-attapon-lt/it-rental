@@ -132,26 +132,58 @@ function getItems(){
     return items;
 }
 
-async function submitForm(){
+function getItems() {
+    const items = [];
+    const pc = document.getElementById("pc");
+    const nb = document.getElementById("nb");
+
+    if (pc && pc.checked) items.push("PC");
+    if (nb && nb.checked) items.push("Notebook");
+
+    return items;
+}
+
+async function submitForm() {
     const payload = {
-        name_th: name_th.value,
-        company: company.value,
-        position: position.value,
-        phone: phone.value,
+        name_th: document.getElementById('name_th').value.trim(),
+        company: document.getElementById('company').value.trim(),
+        position: document.getElementById('position').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        req_date: document.getElementById('req_date')?.value?.trim() || '',
         items: getItems()
     };
 
-    const res = await fetch(API,{
-        method:"POST",
-        body: JSON.stringify({
-            action:"create",
-            payload
-        })
-    });
+    if (!payload.name_th) {
+        alert("กรุณากรอกชื่อ");
+        return;
+    }
 
-    const data = await res.json();
+    try {
+        const res = await fetch(API, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({
+                action: "create",
+                payload
+            })
+        });
 
-    alert("✅ ส่งสำเร็จ\n"+data.data.doc_no);
+        const raw = await res.text();
+        console.log("API raw response:", raw);
+
+        const data = JSON.parse(raw);
+
+        if (!data.ok) {
+            throw new Error(data.message || "API error");
+        }
+
+        alert("✅ บันทึกสำเร็จ\nเลขเอกสาร: " + data.data.doc_no);
+    } catch (error) {
+        console.error("submitForm failed:", error);
+        alert("❌ ส่งข้อมูลไม่สำเร็จ\n" + error.message);
+    }
 }
 </script>
 

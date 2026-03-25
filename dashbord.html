@@ -1,0 +1,52 @@
+<script>const API = "https://script.google.com/macros/s/AKfycbxsdmTBiOyNF3-_uMUp1MIf8RuSWnW9wn1wqxlP-V9QkngIb3vsehIscVRxcaRmFzXY/exec";
+
+async function load() {
+    const res = await fetch(API + "?action=list");
+    const data = await res.json();
+
+    const tbody = document.getElementById("tb");
+
+    tbody.innerHTML = data.data.map(r => `
+        <tr>
+            <td>${r.doc_no}</td>
+            <td>${r.name_th}</td>
+            <td>${r.company}</td>
+            <td>${r.items}</td>
+            <td>${r.doc_status}</td>
+            <td>
+                <button onclick="update('${r.doc_no}','อนุมัติ')">อนุมัติ</button>
+                <button onclick="update('${r.doc_no}','ไม่อนุมัติ')">ไม่อนุมัติ</button>
+            </td>
+        </tr>
+    `).join("");
+}
+
+async function update(doc, status) {
+    await fetch(API, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "update",
+            doc_no: doc,
+            status
+        })
+    });
+
+    load();
+}
+
+load();
+</script>
+
+<table border="1">
+<thead>
+<tr>
+<th>Doc</th>
+<th>Name</th>
+<th>Company</th>
+<th>Items</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="tb"></tbody>
+</table>
